@@ -1,7 +1,10 @@
 from SummaryStats import *
 import copy
 
-# Can make this a comma if that would be easier
+# Pandas is too good to ignore:
+import pandas as pd
+
+# Can make this a comma if that would be easier:
 DELIMITER = '\t'
 
 def SafeFile(fileName,fileType):
@@ -40,6 +43,8 @@ def SafeFile(fileName,fileType):
 
     return theFile
 
+# Want to completely rewrite this in Pandas. For now, though, I'll just hack pandas IO in here:
+    
 class DataDict():
     keyOrder = ['BlockNumber','TrialNumber','SetNumber',\
                     'Correct','ReactionTime','SetSize',\
@@ -51,7 +56,8 @@ class DataDict():
         self.Data = {}
         for key in self.keyOrder:
             self.Data[key] = []
-      
+        self.dataFrame = None
+        
     def update(self,BN,TN,SetNum,Resp,RT,SetSize,Probe,TargetSet,Time,yesKey,noKey):
         self.Data['BlockNumber'].append(BN)
         self.Data['TrialNumber'].append(TN)
@@ -171,7 +177,7 @@ class DataDict():
     def writeAnaFile(self):
         #self.writeHeader()
         self.writeFile()
-
+        
     def writeToFile(self,FileObject=None):
         if FileObject: 
             if type(FileObject) == str:
@@ -181,3 +187,14 @@ class DataDict():
         
         self.writeAnaFile()
         self.writeSummaryFile()
+
+    def writePandasOutput(self,fileName):
+        # Simplified output using the excellent Pandas library
+        
+        if self.dataFrame:
+            self.dataFrame.to_csv(fileName)
+        else:
+            self.dataFrame = pd.DataFrame(self.Data)
+            self.dataFrame.to_csv(fileName)
+
+        

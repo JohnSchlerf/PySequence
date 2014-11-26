@@ -44,7 +44,13 @@ def GridEntry(Parent,DefaultText,Row,Column):
 
 
 class setupGUI():
+
+   # Options that we may decide to pass to the program:
+   optDict = {'fullscreen':False,
+              'junk':0}
+
    def __init__(self):
+      print "Initializing..."
       self.AllData = DataDict()
 
       # Define my Tkinter window:
@@ -56,12 +62,12 @@ class setupGUI():
 
       # Enter the subject ID:
       GridLabel(self.win,"Subject ID:",nextRow,0)
-      self.__subjIdEntry = GridEntry(self.win,"",nextRow,1)
+      self.__subjIdEntry = GridEntry(self.win,"DEFAULT",nextRow,1)
       nextRow += 1
 
       # Enter the session number:
       GridLabel(self.win,"Current Session:",nextRow,0)
-      self.__sessionEntry = GridEntry(self.win,"",nextRow,1)
+      self.__sessionEntry = GridEntry(self.win,"1",nextRow,1)
       nextRow += 1
 
       # Insert a blank line:
@@ -74,29 +80,36 @@ class setupGUI():
       self.__quitButton = Button(self.win,text="Quit",command=self.CleanUp)
       self.__quitButton.grid(row=nextRow,column=0,pady=5,sticky=E+W)
       
+      print "About to run the mainloop..."
+      
       # Run the loop (shows the GUI):
       self.win.mainloop()
 
-
+      
    def CleanUp(self):
       # This is called when the Quit button is pressed:
       self.AllData.writePandasOutput(self.fileName)
       self.win.quit()
 
+      
    def runBlock(self):
       # This is called when the Run button is pressed:
-      self.subjID = eval(self.__subjIdEntry.get())
-      self.session = eval(self.__sessionEntry.get())
+      self.subjID = self.__subjIdEntry.get()
+      self.session = self.__sessionEntry.get()
 
-      # see if the session file exists:
+      # Session File:
       sessionFile = str(self.subjID) + "_" + str(self.session) + ".csv"
       
-      if self.BlockNumber == 1:
-         self.fileName = SafeFile(self.__fileNameEntry.get(),'.ana')
-         
-      self.AllData = runSternbergBlock(self.BlockNumber,optDic,self.AllData)
+      # Output File:
+      self.fileName = str(self.subjID) + "_" + str(self.session) + "_Data.csv"
       
-      self.__fileNameEntry.delete(0,END)
-      self.__fileNameEntry.insert(0,self.fileName)
-      self.BlockNumber+=1
-      GridLabel(self.win,str(self.BlockNumber),0,1)
+      self.AllData = runSequenceBlock(sessionFile,self.optDict,self.AllData)
+
+
+###########################################################3
+# This will do the work, eventually:
+def runSequenceBlock(sessionFile,optDict,dataDict=None):
+    print "Runnin' a block!"
+    return dataDict
+
+setupGUI()
