@@ -1,3 +1,7 @@
+# This is my timer class.
+# There's some overhead to calling time/clock, so this simplifies that 
+# and lets me run a bunch at once.
+
 import os
 if os.name == 'nt':
     from time import clock as CurrentTime

@@ -52,33 +52,33 @@ class Display:
 
     def _kbCallback(self,event):
         """ Close on Escape, otherwise save the keypress """
-        if event.keysym == 'Escape': self.Close()
+        if event.keysym == 'Escape': self.close()
         if not self.keyPress:
             self.keyPress=event.char
 
-    def SetSize(self,size=18):
+    def setSize(self,size=18):
         self.myFont = (self.myFont[0], size, self.myFont[2])
 
-    def SetColor(self,color="white"):
+    def setColor(self,color="white"):
         self.fontColor=color
 
-    def SetText(self,text):
+    def setText(self,text):
         if self.IsRunning:
             self.myText.set(text)
             self.myLabel.configure(font=self.myFont,fg=self.fontColor)
 
-    def MoveText(self,newX=0,newY=0):
+    def moveText(self,newX=0,newY=0):
         if self.IsRunning:
             self.myLabel.place(x=self.myLabel.winfo_x()+newX,
                                y=self.myLabel.winfo_y()+newY)
 
-    def SetImage(self,imageFile):
+    def setImage(self,imageFile):
         None
 
-    def ClearImage(self):
+    def clearImage(self):
         None
 
-    def Close(self):
+    def close(self):
         if self.IsRunning:
             self.IsRunning = False
             self.root.destroy()
@@ -88,8 +88,30 @@ class Display:
             self.root.update()
 
     def clearKey(self):
+        # sets the stored keyPress value to None
         self.keyPress = None
 
+    def getKeypress(self,timers=None,timeout=None):
+        # Waits for a key to be pressed or a timeout on timer 1.
+        # Timeout functionality is based on the Clock class.
+        self.clearKey()
+        if timers:
+            timers.reset(1)
+        responseCollected = False
+        while not(responseCollected):
+            if timers:
+                timers.update()
+                if timeout:
+                    if timers[1] >= timeout:
+                        responseCollected=True
+            if self.IsRunning:
+                self.update()
+                if self.keyPress:
+                    responseCollected = True
+            else:
+                responseCollected = True
+        return self.keyPress
+        
     def __cmp__(self,other):
         """ I may not need this... but... """
         if self.lastKey == other:
