@@ -50,6 +50,7 @@ class setupGUI():
               'HEIGHT'  :600,  # set to -1 for fullscreen
               'FONTSIZE':18,
               'INSTRUCTIONFILE':'sequence_files/INSTRUCTIONS.txt',
+              'BETWEEN_TRIAL_PAUSE': 50.0/1000.0, # ie, 50 ms
               'RESPONSE_TIMEOUT':None, # Set to None for no timeout
               }
 
@@ -92,7 +93,7 @@ class setupGUI():
    def cleanUp(self):
       # This is called when the Quit button is pressed:
       try:
-        self.AllData.to_csv(self.outputFile)
+        self.AllData.to_csv(self.outputFile,index=False)
       except:
         print "Seems there's no data to save."
       self.win.quit()
@@ -212,9 +213,23 @@ def runSequenceBlock(sessionFile,optDict,theData):
             thisRow[item] = thisTrial[item]
    
         theData = theData.append(thisRow,ignore_index=True)
+        
+        myClocks.reset(2)
+        while myClocks[2] < BETWEEN_TRIAL_PAUSE:
+            myClocks.update()
     
     myWindow.close()
     
-    return theData
+    # Nice to explicitly order the data output sometimes:
+    orderedCols = ['TN','RT','numBadResponses','badResponses']
+    allCols = theData.columns.values
+    
+    for col in allCols:
+        if col in orderedCols:
+            None
+        else:
+            orderedCols.append(col)
+    
+    return theData[orderedCols]
 
 setupGUI()
